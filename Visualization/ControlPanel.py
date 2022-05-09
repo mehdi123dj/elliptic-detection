@@ -168,7 +168,7 @@ class ControlPanel():
             Input({"index": MATCH,"type": "edge_legend","label":MATCH}, "n_clicks"),
             State('stored-data-edges','data'),
         )
-        def edge_selction(n,data_edge):
+        def edge_selection(n,data_edge):
             triggered = dash.callback_context.triggered
             
             if n is None :
@@ -211,18 +211,27 @@ class ControlPanel():
                 D=pd.DataFrame(data_edge)
                 for i in self.hash_node[json.loads(triggered[0]['prop_id'].split('.')[0])["label"]]["data"]:
                     n_mask_node[i]=1
+                
 
                 for i in self.hash_node[json.loads(triggered[0]['prop_id'].split('.')[0])["label"]]["data"]:
 
                     for ind in D.index[D["destination"]==i]:
-                        if self.hash_edge[D['type'].iloc[ind]]["selected"]==1 and n_mask_node[D["source"][ind]]==1:
-
-                            n_mask_edge[ind]=1
+                        if 'type' in D:
+                            if self.hash_edge[D['type'].iloc[ind]]["selected"]==1 and n_mask_node[D["source"][ind]]==1:
+    
+                                n_mask_edge[ind]=1
+                        else:
+                            if n_mask_node[D["source"][ind]]==1:
+                                n_mask_edge[ind]=1
 
 
                     for ind in D.index[D["source"]==i]:
-                        if self.hash_edge[D['type'].iloc[ind]]["selected"]==1 and n_mask_node[D["destination"][ind]]==1:
-                            n_mask_edge[ind]=1
+                        if 'type' in D:
+                            if self.hash_edge[D['type'].iloc[ind]]["selected"]==1 and n_mask_node[D["destination"][ind]]==1:
+                                n_mask_edge[ind]=1
+                        else:
+                            if n_mask_node[D["destination"][ind]]==1:
+                                n_mask_edge[ind]=1
                 self.hash_node[json.loads(triggered[0]['prop_id'].split('.')[0])["label"]]["selected"]=1
 
                 self.mask_node=copy.deepcopy(n_mask_node)
@@ -237,9 +246,9 @@ class ControlPanel():
                     n_mask_node[i]=0
                     for ind in D.index[D["destination"]==i]:
                         n_mask_edge[ind]=0
+
                     for ind in D.index[D["source"]==i]:
                         n_mask_edge[ind]=0
-
 
                 self.hash_node[json.loads(triggered[0]['prop_id'].split('.')[0])["label"]]["selected"]=0
                 self.mask_node=copy.deepcopy(n_mask_node)

@@ -33,7 +33,7 @@ class AML_model(torch.nn.Module):
                                 num_layers = num_layers,
                                 out_channels = out_channels,
                                 dropout = dropout,
-                                act = act,
+                                # act = act,
                                 jk = jk,
                                 )
         elif _type == 'GCN':         
@@ -61,7 +61,7 @@ class AML_model(torch.nn.Module):
         self.lin = Linear(out_channels,num_classes)
 
     def forward(self, x, edge_index):
-
+        # print(x)
         X = self.GNN_model(x,edge_index)
         softmax = Softmax(dim=1)
         preds = softmax(self.lin(X))

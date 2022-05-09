@@ -11,8 +11,8 @@ warnings.filterwarnings('always')
 
 
 
-data_dir = '/home/mehdi/Desktop/Datarvest/Projects/Demo/data'
-models_dir = '/home/mehdi/Desktop/Datarvest/Projects/Demo/models'
+data_dir = "../data"
+models_dir = "../models"
 
 
 def main(): 
@@ -144,7 +144,7 @@ def main():
     val_loader = DataLoader(data_val, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(data_test, batch_size=args.batch_size, shuffle=False)
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cpu')#'cuda' if torch.cuda.is_available() else 'cpu')
     optimizer = torch.optim.Adam(model.parameters(), lr = args.learning_rate)
 
     best_val_auc = 0

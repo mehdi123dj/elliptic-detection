@@ -32,30 +32,35 @@ class CytoView():
         self.data_edges=data_edges
         self.CP=CP
         
-
-
-        degree=[10 for i in data_nodes]
-        
         G=[]
         for elem in data_edges:
-            degree[elem['source']]=degree[elem['source']]+1
-            degree[elem['destination']]=degree[elem['destination']]+1
-            G.append({
-                'data':{
-                'perso':'e'+str(data_edges.index(elem)),
-                'source': 'n'+str(elem['source']), 
-                'target': 'n'+str(elem['destination'])},
-                'classes': elem['type']
-                })
+            if 'type' in elem:
+                G.append({
+                    'data':{
+                    'perso':'e'+str(data_edges.index(elem)),
+                    'source': 'n'+str(elem['source']), 
+                    'target': 'n'+str(elem['destination'])},
+                    'classes': elem['type']
+                    })
+            else:
+                G.append({
+                    'data':{
+                    'perso':'e'+str(data_edges.index(elem)),
+                    'source': 'n'+str(elem['source']), 
+                    'target': 'n'+str(elem['destination'])},
+
+                    })
         
+        degree=NodeLayout.degree(data_edges,len(data_nodes))
         data_n=NodeLayout.normalisation(data_nodes)
+        size=NodeLayout.node_size(degree)
         for elem in data_n:
             if 'type'in elem:
 
                 G.append({
                     'data':{'id': 'n'+str(elem['noeuds']),
-                            'label':str(degree[elem['noeuds']]),#str((elem['positionX'],elem['positionY'])),
-                            'size':degree[elem['noeuds']],
+                            'label':str((degree[elem['noeuds']],size[elem['noeuds']])),#str((elem['positionX'],elem['positionY'])),
+                            'size':size[elem['noeuds']],
                             },
                     'classes': elem['type'],
                     'position':{'x': 20000*elem['positionX'], 'y': 20000*elem['positionY']},
@@ -64,8 +69,8 @@ class CytoView():
             else :
                 G.append({
                     'data':{'id': 'n'+str(elem['noeuds']),
-                            'label':str(degree[elem['noeuds']]),#str((elem['positionX'],elem['positionY'])),
-                            'size':degree[elem['noeuds']],
+                            'label':str((degree[elem['noeuds']],size[elem['noeuds']])),#str((elem['positionX'],elem['positionY'])),
+                            'size':size[elem['noeuds']],
                             # 'type':elem['type'],
                             },
                     
@@ -78,7 +83,7 @@ class CytoView():
     def modif(self):
         #Where G is ordered by default with edges first and nodes second
         CP=self.CP
-          
+        
         G=[]
         for i in range(len(CP.mask_edge)):
             if CP.mask_edge[i]:
@@ -98,14 +103,16 @@ class CytoView():
                     html.Div(
                         cyto.Cytoscape(
                         id='cytoscape',
-                        layout={'name': 'preset',
-                                'fit':True},
+                        layout={'name': 'preset',},
+                                # 'fit':True},
                         elements=G,
                         stylesheet=self.Stylesheet.default_stylesheet,
                         style={'width': '100%', 'height': '83vh','position': 'absolute','top':'0px',
                                 'left':'0px','z-index': '999'},
                         minZoom=0.01,
                         maxZoom=10,
+                        wheelSensitivity=0.1,
+                        boxSelectionEnabled=True
                         
                         ),# responsive=True
                         style={
@@ -135,15 +142,14 @@ class CytoView():
 
         @app.callback(Output('cytoscape', 'elements'),
         Input('bt-reset-view', 'n_clicks'),
-        Input('url', 'pathname'),
-        Input({"index": ALL,"type": "edge_legend","label":ALL}, "n_clicks"),
-        Input({"index": ALL,"type": "node_legend","label":ALL}, "n_clicks"))
-        def reset_layout_view(n_clicks,path,n_edge,n_node):
+        Input('visualization', 'style'),
+        Input({"index": ALL,"type": "edge_legend","label":ALL}, "style"),
+        Input({"index": ALL,"type": "node_legend","label":ALL}, "style"))
+        def reset_layout_view(n_clicks,path,n_style,e_style):
             triggered = dash.callback_context.triggered[0]['prop_id'].split('.')
-            time.sleep(0.05)
             if triggered==None:
                 return dash.no_update
-            elif  (triggered[0][0:2]=='ur' or triggered[0][0:2]=='bt') and path =="/visualization":
+            elif  triggered[0]=='visualization':
 
                 return self.G
             else:
@@ -154,8 +160,9 @@ class CytoView():
 
         @app.callback(Output('cytoscape', 'stylesheet'),
                       Input('cytoscape', 'tapNode'),
-                      Input('bt-reset-stylesheet', 'n_clicks'))
-        def generate_stylesheet(node,n_clicks):
+                      Input('bt-reset-stylesheet', 'n_clicks'),
+                      State('bt-oriented','on'))
+        def generate_stylesheet(node,n_clicks,switch):
 
             changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
@@ -165,7 +172,7 @@ class CytoView():
             if node==None:
                 return self.Stylesheet.default_stylesheet
             
-            self.Stylesheet.stylesheet_on_click(node)
+            self.Stylesheet.stylesheet_on_click(node,switch)
             
             
             

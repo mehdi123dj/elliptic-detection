@@ -8,13 +8,14 @@ from matplotlib import collections  as mc
 from torch.nn import Softmax
 import numpy as np
 from sklearn.manifold import TSNE
+import pandas as pd
 import os 
 import argparse
 
 
-data_path = './data'
-model_path = "./models"
-save_path = "./positionning"
+data_path = '../data'
+model_path = "../models"
+save_path = "../positionning"
 
 def get_embedding(data_path,model_name,split,time_step):
     data = MyEllipticBitcoinDataset(data_path,split = split)
@@ -27,8 +28,38 @@ def get_embedding(data_path,model_name,split,time_step):
     Embeddings = Embeddings.detach().numpy()
     X_embedded = TSNE(n_components=2, learning_rate='auto',
                     init='random').fit_transform(Embeddings)
+    to_CSV(X_embedded,Data)
     return X_embedded
 
+
+def to_CSV(X_embedded,Data):
+    edge=Data.edge_index.detach().numpy()
+    y=Data.y.detach().numpy()
+    df_nodes=pd.DataFrame(columns=['noeuds','positionX','positionY','type'])
+    df_edges=pd.DataFrame(columns=['source','destination'])
+    
+    T=[]
+    nodes=[]
+    positionX=[]
+    positionY=[]
+    
+    for i in range(len(X_embedded)):
+        positionX.append(X_embedded[i][0])
+        positionY.append(X_embedded[i][1])
+        T.append(y[i])
+        nodes.append(i)
+    df_nodes["noeuds"]=nodes
+    df_nodes['positionX']=positionX
+    df_nodes['positionY']=positionY
+    df_nodes['type']=T
+
+    df_nodes.to_csv(os.path.join(save_path,"bitcoinNodes.csv"),index=False)
+    
+    print(y[0])
+    df_edges["source"]=edge[0]
+    df_edges['destination']=edge[1]
+    df_edges.to_csv(os.path.join(save_path,"bitcoinEdges.csv"),index=False)
+        
 
 def main(): 
 

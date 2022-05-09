@@ -14,7 +14,7 @@ from ControlPanel import ControlPanel
 from CytoView import CytoView
 from ColorMap import ColorMap
 import dash_bootstrap_components as dbc
-
+import dash_daq as daq
 import base64
 import datetime
 import io
@@ -59,6 +59,14 @@ class CreateElements():
                     # Allow multiple files to be uploaded
                     multiple=True
                 ),
+                html.Div(
+                    children=[
+                        html.H6("Directed graph :",style={'display':'inline-block','vertical-align':'middle'}),
+                        daq.BooleanSwitch(id='bt-oriented', on=False,style={'display':'inline-block','position':'relative'})
+                        
+                        ],style={'textAlign': 'center','margin':'1em'})
+                ,
+            
                 html.Div(id='output-datatable')
             ],
             id="home",style={'display':'none'})
@@ -67,7 +75,6 @@ class CreateElements():
 
         
     def __call__(self):
-        
 
         return [self.location,self.dashboard,self.home,self.visualization]
 
@@ -92,9 +99,13 @@ class CreateElements():
             ])
 
         if 'Links' in filename or 'Edges' in filename:
+            if "type" in df:
+                df["type"]=df["type"].map(str)
             store=dcc.Store(id='stored-data-edges', data=df.to_dict('records'))
 
         if 'Nodes' in filename :
+            if "type" in df:  
+                df["type"]=df["type"].map(str)
             store=dcc.Store(id='stored-data-nodes', data=df.to_dict('records'))
 
 

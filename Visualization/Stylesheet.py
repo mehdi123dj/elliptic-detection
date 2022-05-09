@@ -57,7 +57,7 @@ class Stylesheet():
         self.default_stylesheet=stylesheet+exterior_stylesheet
     
     
-    def stylesheet_on_click(self,node):
+    def stylesheet_on_click(self,node,switch):
         follower_color='#0074D9'
         following_color='#FF4136'
         
@@ -96,51 +96,75 @@ class Stylesheet():
             }
         }]
         
-        for edge in node['edgesData']:
-            if edge['source'] == node['data']['id']:
-                stylesheet.append({
-                    "selector": 'node[id = "{}"]'.format(edge['target']),
-                    "style": {
-                        'background-color': following_color,
-                        'opacity': 1,
-                        'width': 'data(size)',
-                        'height': 'data(size)',
-                    }
-                })
-                stylesheet.append({
-                    "selector": 'edge[perso= "{}"]'.format(edge['perso']),
-                    "style": {
-                        "mid-target-arrow-color": following_color,
-                        "mid-target-arrow-shape": "vee",
-                        "line-color": following_color,
-                        'width':15,
-                        'opacity': 0.9,
-                        'z-index': 5000
-                    }
-                })
-        
-            if edge['target'] == node['data']['id']:
-                stylesheet.append({
-                    "selector": 'node[id = "{}"]'.format(edge['source']),
-                    "style": {
-                        'background-color': follower_color,
-                        'opacity': 1,
-                        'z-index': 9999,
-                        'width': 'data(size)',
-                        'height': 'data(size)',
-                    }
-                })
-                stylesheet.append({
-                    "selector": 'edge[perso= "{}"]'.format(edge['perso']),
-                    "style": {
-                        "mid-target-arrow-color": follower_color,
-                        "mid-target-arrow-shape": "vee",
-                        "line-color": follower_color,
-                        'width':15,
-                        'opacity': 0.9,
-                        'z-index': 5000
-                    }
-                })
+            
+        if switch:
+            for edge in node['edgesData']:
+                if edge['source'] == node['data']['id']:
+                    stylesheet.append({
+                        "selector": 'node[id = "{}"]'.format(edge['target']),
+                        "style": {
+                            'background-color': following_color,
+                            'opacity': 1,
+                            'width': 'data(size)',
+                            'height': 'data(size)',
+                        }
+                    })
+                    stylesheet.append({
+                        "selector": 'edge[perso= "{}"]'.format(edge['perso']),
+                        "style": {
+                            "mid-target-arrow-color": following_color,
+                            "mid-target-arrow-shape": "vee",
+                            "line-color": following_color,
+                            'width':15,
+                            'opacity': 0.9,
+                            'z-index': 5000
+                        }
+                    })
+            
+                if edge['target'] == node['data']['id']:
+                    stylesheet.append({
+                        "selector": 'node[id = "{}"]'.format(edge['source']),
+                        "style": {
+                            'background-color': follower_color,
+                            'opacity': 1,
+                            'z-index': 9999,
+                            'width': 'data(size)',
+                            'height': 'data(size)',
+                        }
+                    })
+                    stylesheet.append({
+                        "selector": 'edge[perso= "{}"]'.format(edge['perso']),
+                        "style": {
+                            "mid-target-arrow-color": follower_color,
+                            "mid-target-arrow-shape": "vee",
+                            "line-color": follower_color,
+                            'width':15,
+                            'opacity': 0.9,
+                            'z-index': 5000
+                        }
+                    })
+        else:
+            for edge in node['edgesData']:
+                if edge['target'] or edge['source'] ==  node['data']['id']:
+                    stylesheet.append({
+                        "selector": 'node[id = "{}"]'.format(edge['source']),
+                        "style": {
+                            'background-color': following_color,
+                            'opacity': 1,
+                            'z-index': 9999,
+                            'width': 'data(size)',
+                            'height': 'data(size)',
+                        }
+                    })
+                    stylesheet.append({
+                        "selector": 'edge[perso= "{}"]'.format(edge['perso']),
+                        "style": {
+                            "line-color": following_color,
+                            'width':15,
+                            'opacity': 0.9,
+                            'z-index': 5000
+                        }
+                    })
             
         self.stylesheet=stylesheet
     

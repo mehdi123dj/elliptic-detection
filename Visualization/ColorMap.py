@@ -40,12 +40,15 @@ class ColorMap():
         
         e_type=pd.DataFrame.from_dict(data_edges)
         n_type=pd.DataFrame.from_dict(data_nodes)
+
+
         
         type_in_edge="type" in e_type
         type_in_node="type" in n_type
 
         if type_in_edge==True :
             e_type=list(set(e_type['type']))
+            e_type.sort()
             stylesheet=[]
             legend=[]
             m=max(e_color)
@@ -71,6 +74,7 @@ class ColorMap():
         
         if type_in_node==True :
             n_type=list(set(n_type['type']))
+            n_type.sort()
             stylesheet=[]
             legend=[]
             m=max(n_color)
@@ -82,15 +86,15 @@ class ColorMap():
             for i in range(N):
                 if i<m:
                     stylesheet.append({
-                        'selector': '.'+n_type[i],
+                        'selector': '.'+str(n_type[i]),
                         "style": {
                             "color": n_color[c][i],
                             'background-color': n_color[c][i],
                         }
                     })
-                    legend.append([n_color[c][i],n_type[i]])
+                    legend.append([n_color[c][i],str(n_type[i])])
                 else:
-                   legend.append(['#999999',n_type[i]])     
+                   legend.append(['#999999',str(n_type[i])])     
             
             
             self.node_legend=legend
